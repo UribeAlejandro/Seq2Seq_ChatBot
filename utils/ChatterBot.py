@@ -67,18 +67,20 @@ class ChatterBot:
         return decoded_sentence
 
     def start_chat(self):
-        user_response = input("Bot: Hi, would like to chat with me?\n")
-        user_response = user_response.lower()
-
-        self.chat(user_response)
-
-    def chat(self, user_input) -> None:
-
-        if self.make_exit(user_input):
-            print("Goodbye.")
+        print("Bot: Hi, would like to chat with me?")
+        user_response = input("User: ")
+        if self.make_exit(user_response.lower()):
+            print("Goodbye")
         else:
-            reply = input("\nBot reply: " + self.response(user_input) + "\nUser: ")
-            self.chat(reply)
+            self.chat()
+
+    def chat(self) -> None:
+        user_response = input("\nUser: ")
+        if self.make_exit(user_response.lower()):
+            print("Goodbye")
+        else:
+            print("Bot reply: " + self.response(user_response))
+            self.chat()
 
     def make_exit(self, user_response) -> bool:
         if (user_response in self.negative_commands) or (user_response in self.exit_commands):

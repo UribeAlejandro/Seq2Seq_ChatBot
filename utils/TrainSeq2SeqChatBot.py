@@ -1,9 +1,10 @@
 import os
 import warnings
-import tensorflow as tf
 from pathlib import Path
 from keras.models import Model, load_model
 from keras.layers import Input, LSTM, Dense
+from tensorflow.keras.utils import plot_model
+from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
 
 warnings.filterwarnings('ignore')
 
@@ -55,13 +56,26 @@ class TrainSeq2SeqChatBot:
             model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
             print(model.summary())
 
-            tf.keras.utils.plot_model(model, to_file="./model/model.png", show_shapes=False, show_dtype=False,
-                                      show_layer_names=True, rankdir="TB", expand_nested=False, dpi=96)
+            plot_model(model, to_file="./model/model.png",
+                       show_shapes=True, show_dtype=True,
+                       show_layer_names=True, rankdir="TB",
+                       expand_nested=True, dpi=96)
+
+            callbacks = [ModelCheckpoint(filepath=self.model_file_dir,
+                                         monitor="loss",
+                                         save_best_only=True,
+                                         verbose=1),
+
+                         ReduceLROnPlateau(monitor='loss',
+                                           min_lr=0.0001,
+                                           factor=0.2,
+                                           patience=1,
+                                           verbose=1)]
 
             model.fit([self.encoder_input_data, self.decoder_input_data], self.decoder_target_data,
-                      batch_size=self.batch_size, epochs=self.epochs, validation_split=0.1)
+                      batch_size=self.batch_size, epochs=self.epochs, validation_split=0.1, callbacks=callbacks)
 
-            model.save(self.model_file_dir)
+            # model.save(self.model_file_dir)
 
         else:
             pass
